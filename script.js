@@ -1,23 +1,14 @@
-/* =====================================================
-   BALAJI SAAFA HOUSE
-   Dynamic Product Gallery
-===================================================== */
-
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* -----------------------------------------------
-       Current Year
-    ------------------------------------------------ */
     const yearElement = document.getElementById("current-year");
-
     if (yearElement) {
         yearElement.textContent = new Date().getFullYear();
     }
 
-
-    /* -----------------------------------------------
-       Product Categories
-    ------------------------------------------------ */
+    // GitHub Repository Details
+    const GITHUB_OWNER = "manishhaatwa-dot";
+    const GITHUB_REPO = "Balaji-Safa-House-pali";
+    const GITHUB_BRANCH = "main";
 
     const categories = {
         saafa: "saafa-products",
@@ -26,54 +17,54 @@ document.addEventListener("DOMContentLoaded", () => {
         jutti: "jutti-products"
     };
 
-
-    /* -----------------------------------------------
-       Load Products
-    ------------------------------------------------ */
+    const imageExtensions = [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp",
+        ".gif"
+    ];
 
     async function loadProducts() {
 
-        try {
+        for (const category in categories) {
 
-            const response = await fetch("products.json", {
-                cache: "no-store"
-            });
+            const container = document.getElementById(
+                categories[category]
+            );
 
-            if (!response.ok) {
-                throw new Error("products.json not found");
-            }
+            if (!container) continue;
 
-            const products = await response.json();
+            try {
 
-            Object.keys(categories).forEach(category => {
+                const apiUrl =
+                    `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/assets/products/${category}?ref=${GITHUB_BRANCH}`;
 
-                const container =
-                    document.getElementById(categories[category]);
+                const response = await fetch(apiUrl);
 
-                if (!container) return;
-
-                const categoryProducts =
-                    products.filter(product =>
-                        product.category === category
+                if (!response.ok) {
+                    throw new Error(
+                        `GitHub API error: ${response.status}`
                     );
+                }
 
-                renderProducts(
-                    container,
-                    categoryProducts
+                const files = await response.json();
+
+                const images = files.filter(file =>
+                    file.type === "file" &&
+                    imageExtensions.some(ext =>
+                        file.name.toLowerCase().endsWith(ext)
+                    )
                 );
 
-            });
+                renderProducts(container, images);
 
-        } catch (error) {
+            } catch (error) {
 
-            console.error("Product loading error:", error);
-
-            Object.values(categories).forEach(id => {
-
-                const container =
-                    document.getElementById(id);
-
-                if (!container) return;
+                console.error(
+                    `Error loading ${category}:`,
+                    error
+                );
 
                 container.innerHTML = `
                     <div class="empty-collection">
@@ -81,23 +72,16 @@ document.addEventListener("DOMContentLoaded", () => {
                         <p>Collection coming soon</p>
                     </div>
                 `;
-
-            });
-
+            }
         }
-
     }
 
 
-    /* -----------------------------------------------
-       Create Product Cards
-    ------------------------------------------------ */
-
-    function renderProducts(container, products) {
+    function renderProducts(container, images) {
 
         container.innerHTML = "";
 
-        if (!products.length) {
+        if (!images.length) {
 
             container.innerHTML = `
                 <div class="empty-collection">
@@ -110,40 +94,42 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        products.forEach(product => {
+        images.forEach(file => {
 
-            const card =
-                document.createElement("div");
-
+            const card = document.createElement("div");
             card.className = "product-card";
 
 
-            const imageWrap =
-                document.createElement("div");
-
-            imageWrap.className =
-                "product-image-wrap";
+            const imageWrap = document.createElement("div");
+            imageWrap.className = "product-image-wrap";
 
 
-            const image =
-                document.createElement("img");
-
-            image.className =
-                "product-image";
+            const image = document.createElement("img");
+            image.className = "product-image";
 
             image.src =
-                product.image;
+                `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${file.path}`;
 
-            image.alt =
-                product.name;
-
-            image.loading =
-                "lazy";
+            image.loading = "lazy";
 
 
-            /* -----------------------------------------
-               Image Error
-            ------------------------------------------ */
+            // Filename se product name
+            let productName = file.name
+                .replace(/\.[^/.]+$/, "")
+                .replace(/[-_]+/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+
+
+            // First letter capital
+            productName = productName
+                .replace(/\b\w/g, letter =>
+                    letter.toUpperCase()
+                );
+
+
+            image.alt = productName;
+
 
             image.onerror = () => {
 
@@ -161,41 +147,25 @@ document.addEventListener("DOMContentLoaded", () => {
                         <i class="fa-regular fa-image"></i>
                     </div>
                 `;
-
             };
 
 
             imageWrap.appendChild(image);
 
 
-            /* -----------------------------------------
-               Product Name
-            ------------------------------------------ */
-
-            const name =
-                document.createElement("div");
-
-            name.className =
-                "product-name";
-
-            name.textContent =
-                product.name;
+            const name = document.createElement("div");
+            name.className = "product-name";
+            name.textContent = productName;
 
 
             card.appendChild(imageWrap);
-
             card.appendChild(name);
 
             container.appendChild(card);
 
         });
-
     }
 
-
-    /* -----------------------------------------------
-       Start
-    ------------------------------------------------ */
 
     loadProducts();
 
