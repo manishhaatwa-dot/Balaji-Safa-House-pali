@@ -876,3 +876,14 @@ footer::after {
 a i {
     pointer-events: none;
 }
+
+.location-btn {
+    background: #c62828 !important;
+    color: #ffffff !important;
+    border: 2px solid #c62828 !important;
+    box-shadow: 0 5px 15px rgba(198, 40, 40, 0.30);
+}
+
+.location-btn i {
+    color: #ffffff !important;
+}
