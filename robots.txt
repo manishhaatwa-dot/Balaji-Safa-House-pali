@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://balajisafahousepali.digiprofiles.in/sitemap.xml
