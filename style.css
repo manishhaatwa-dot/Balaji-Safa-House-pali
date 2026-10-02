@@ -838,3 +838,41 @@ footer small {
     object-fit: cover;
     display: block;
 }
+
+/* ================================
+   FIX: ALL LINKS CLICKABLE
+================================ */
+
+a {
+    position: relative;
+    z-index: 1000;
+    pointer-events: auto !important;
+    cursor: pointer;
+}
+
+/* Decorative layers click ko block na kare */
+body::before,
+body::after,
+.site-header::before,
+.site-header::after,
+.owner-section::before,
+.owner-section::after,
+.info-section::before,
+.info-section::after,
+.info-card::before,
+.info-card::after,
+.about-section::before,
+.about-section::after,
+.collection-section::before,
+.collection-section::after,
+.bottom-contact::before,
+.bottom-contact::after,
+footer::before,
+footer::after {
+    pointer-events: none !important;
+}
+
+/* Buttons ke andar icon bhi click ko block na kare */
+a i {
+    pointer-events: none;
+}
